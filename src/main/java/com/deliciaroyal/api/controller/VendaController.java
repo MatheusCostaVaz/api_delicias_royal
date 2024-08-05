@@ -15,13 +15,16 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
+//Define o caminho base para os endpoints relacionados a vendas
 @RequestMapping("vendas")
+//Requer autenticação com token Bearer para acessar os endpoints
 @SecurityRequirement(name = "bearer-key")
 public class VendaController {
-	
-	@Autowired
-	private DadosEfetuarVenda vende;
-	
+
+    //Injeção do serviço responsável pela lógica de efetuar vendas
+    @Autowired
+    private DadosEfetuarVenda vende;
+
 //	@PostMapping
 //	@Transactional
 //	public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastrarVenda dados, UriComponentsBuilder uriBuilder) {
@@ -30,13 +33,17 @@ public class VendaController {
 //		
 //		var uri = uriBuilder.path("/vendas/{id}").buildAndExpand(venda.getId()).toUri();
 //		return ResponseEntity.created(uri).body(new DadosDetalhamentoVenda(venda));
-//	}	
+//	}
 	
-	@PostMapping
-	@Transactional
-	public ResponseEntity vender(@RequestBody @Valid DadosCadastrarVenda dados) {
-		var dto = vende.vender(dados);
-		return ResponseEntity.ok(dto);
-	}
+    //Realiza o processamento de uma venda.
+    @PostMapping
+    //@Transactional é importante para garantir que a venda seja processada de forma consistente (se algo der errado, a transação é revertida).
+    @Transactional
+    public ResponseEntity vender(@RequestBody @Valid DadosCadastrarVenda dados) {
+        //Chama o serviço para realizar a venda e obter o DTO resultante
+        var dto = vende.vender(dados);
+        //Retorna o DTO com o status HTTP 200 OK
+        return ResponseEntity.ok(dto);
+    }
 
 }

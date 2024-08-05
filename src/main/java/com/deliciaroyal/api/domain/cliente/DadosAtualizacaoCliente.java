@@ -3,7 +3,7 @@ package com.deliciaroyal.api.domain.cliente;
 import jakarta.validation.constraints.NotNull;
 
 public record DadosAtualizacaoCliente(
-		@NotNull
+		@NotNull //Anotação para garantir que o ID não seja nulo
 		Long id,
 		String nome,		
         String celular,

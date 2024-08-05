@@ -27,16 +27,22 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
+//Define o caminho base para todos os endpoints relacionados a produtos
 @RequestMapping("produtos")
+//Requer autenticação com token Bearer para acessar os endpoints
 @SecurityRequirement(name = "bearer-key")
 public class ProdutoController {
-	
-	@Autowired
-	private ProdutoRepository repository;
-	
+
+    //Injeção do repositório de produtos
+    @Autowired
+    private ProdutoRepository repository;
+
+    //Cadastra um novo produto no sistema.
     @PostMapping
+    //Anotação para garantir que a operação seja atômica (tudo ou nada)
     @Transactional
     public ResponseEntity<DadosDetalhamentoProduto> cadastrar(@RequestBody @Valid DadosCadastroProduto dados, UriComponentsBuilder uriBuilder) {
+        //Cria uma instância de Produto com base nos dados recebidos
         var produto = new Produto(dados);
         repository.save(produto);
 
@@ -44,13 +50,15 @@ public class ProdutoController {
 
         return ResponseEntity.created(uri).body(new DadosDetalhamentoProduto(produto));
     }
-    
+
+    //Lista todos os produtos ativos (não excluídos), paginados e ordenados por nome.
     @GetMapping
     public ResponseEntity<Page<DadosListagemProduto>> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
         var page = repository.findAllByAtivoTrue(paginacao).map(DadosListagemProduto::new);
         return ResponseEntity.ok(page);
     }
-    
+
+    //Atualiza as informações de um produto existente.
     @PutMapping
     @Transactional
     public ResponseEntity<DadosDetalhamentoProduto> atualizar(@RequestBody @Valid DadosAtualizacaoProduto dados) {
@@ -59,22 +67,24 @@ public class ProdutoController {
 
         return ResponseEntity.ok(new DadosDetalhamentoProduto(produto));
     }
-    
+
+    //Exclui (lógica) um produto pelo ID.
     @DeleteMapping("/{id}")
     @Transactional
+    //Obtém o ID do produto da URL
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         var produto = repository.getReferenceById(id);
+        //Marca o produto como excluído (assumindo uma exclusão lógica)
         produto.excluir();
 
         return ResponseEntity.noContent().build();
     }
-    
+
+    //Retorna os detalhes de um produto pelo ID.
     @GetMapping("/{id}")
     public ResponseEntity<DadosDetalhamentoProduto> detalhar(@PathVariable Long id) {
         var produto = repository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalhamentoProduto(produto));
     }
-    
-    
 
 }
